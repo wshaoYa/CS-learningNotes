@@ -6369,6 +6369,12 @@ int32最大值
 
 若没有，则返回n，而不是-1
 
+#### SearchInts(a []int, x int) int
+
+利用二分，在a切片中找到第一个大于等于x的下标位置
+
+若没有，则返回n
+
 #### **Slice(x any, less func(i, j int) bool)**
 
 对x切片进行排序，同时自定义排序规则
