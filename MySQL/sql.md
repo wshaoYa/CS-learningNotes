@@ -47,19 +47,26 @@ IFNULL(expression_1,expression_2);
 
 ## 查询
 
-### 去重
+### 去重（DISTINCT）
 
-DISTINCT
+从表中查询数据时，可能会收到重复的行记录。为了删除这些重复行，可以在`SELECT`语句中使用`DISTINCT`子句。
 
 ```sql
-select distinct name
-from xx
-order by name
+SELECT DISTINCT
+    columns
+FROM
+    table_name
+WHERE
+    where_conditions;
 ```
 
-### 计数
+### 计数（COUNT）
 
-COUNT()
+`COUNT()`函数返回表中的行数。 `COUNT()`函数允许您对表中符合特定条件的所有行进行计数。
+
+```mysql
+COUNT(expression)
+```
 
 ```sql
 select count(xxx) as cnt 
@@ -67,7 +74,7 @@ from t
 group by xxx
 ```
 
-### **in、not in**
+### **IN、NOT IN**
 
 ```sql
 select *
@@ -97,13 +104,13 @@ MySQL子查询称为内部查询，而包含子查询的查询称为外部查询
 
 ## 连接
 
-### 内连接
+### 内连接（INNER JOIN）
 
 ```sql
 select * from T1 inner join T2 on T1.userid=T2.userid
 ```
 
-### **左连接**
+### **左连接**（LEFT JOIN）
 
 left join xx
 
@@ -135,6 +142,12 @@ CROSS JOIN
     Subjects sub
 ```
 
+## 分组
+
+GROUP BY 语句根据一个或多个列对结果集进行分组。
+
+在分组的列上我们可以使用 COUNT, SUM, AVG,等函数。
+
 ## 排序
 
 order by
@@ -145,6 +158,18 @@ order by
 
 ```sql
 ORDER BY s.xx, sub.xx;
+```
+
+## BETWEEN
+
+`BETWEEN` 运算符选择给定范围内的值。 这些值可以是数字、文本或日期。
+
+`BETWEEN` 运算符具有包容性：包括开始值和结束值。（左右都是闭区间）
+
+```mysql
+SELECT column_name(s)
+FROM table_name
+WHERE column_name BETWEEN value1 AND value2;
 ```
 
 ## **聚合**函数
@@ -209,9 +234,23 @@ x % y
 
 #### **日期数据间隔**
 
+DATEDIFF() 函数返回两个日期之间的天数。
+
+**语法**
+
+```
+DATEDIFF(date1,date2)
+```
+
+*date1* 和 *date2* 参数是合法的日期或日期/时间表达式。（可以是表示时间的正确格式的字符串）
+
+**注释：**只有值的日期部分参与计算。
+
+
+
 datediff(日期1, 日期2)
 
-得到的结果是日期1与日期2相差的天数。 如果日期1比日期2大，结果为正；如果日期1比日期2小，结果为负。
+得到的结果是日期1与日期2相差的天数。 如果日期1比日期2大，结果为正（大多少天）；如果日期1比日期2小，结果为负（小多少天）。
 
 ```sql
 datediff(w2.date,w1.date)
