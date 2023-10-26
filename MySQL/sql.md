@@ -174,6 +174,9 @@ WHERE column_name BETWEEN value1 AND value2;
 
 ## **聚合**函数
 
+- **特殊用法：**聚合函数可以进行NULL/空值的转换	
+  - 高质量题解解释：[619. 只出现一次的最大数字 - 力扣（LeetCode）](https://leetcode.cn/problems/biggest-single-number/solutions/683252/dang-biao-ge-wei-kong-shi-ru-he-fan-hui-6qpzg/?envType=study-plan-v2&envId=sql-free-50)
+
 ### AVG
 
 用于计算一组值或表达式的平均值。
@@ -202,6 +205,8 @@ SUM(DISTINCT expression)
 ### HAVING 子句
 
 在group by 之后对一些聚合函数计算出来的结果（例count、avg、sum等）的进一步筛选
+
+where 优先级高于 group by 无法在group by之后进行筛选使用。聚合函数 having 优先级低于 group by，可用于group by之后的筛选。
 
 ```sql
 SELECT name 
