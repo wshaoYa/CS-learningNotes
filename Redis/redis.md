@@ -1,7 +1,21 @@
-# 学习资源
+# 介绍
+
+Redis是一个开源的内存数据库，Redis提供了多种不同类型的数据结构，很多业务场景下的问题都可以很自然地映射到这些数据结构上。除此之外，通过复制、持久化和客户端分片等特性，我们可以很方便地将Redis扩展成一个能够包含数百GB数据、每秒处理上百万次请求的系统。
+
+## 应用场景
+
+- 缓存系统，减轻主数据库（MySQL）的压力。
+- 计数场景，比如微博、抖音中的关注数和粉丝数。
+- 热门排行榜，需要排序的场景特别适合使用ZSET。
+- 利用 LIST 可以实现队列的功能。
+- 利用 HyperLogLog 统计UV、PV等数据。
+- 使用 geospatial index 进行地理位置相关查询。
+
+## 学习资源
 
 - 快速入门：[【GeekHour】一小时Redis教程_哔哩哔哩_bilibili](https://www.bilibili.com/video/BV1Jj411D7oG/?spm_id_from=333.999.0.0&vd_source=10527fd74695c7dd4ae2589a62aa5f89)
 - 基本介绍：[Redis 教程 | 菜鸟教程 (runoob.com)](https://www.runoob.com/redis/redis-tutorial.html)
+- 高可用（持久化、哨兵模式、集群）：[【趣话Redis第一弹】我是Redis，MySQL大哥被我坑惨了！_哔哩哔哩_bilibili](https://www.bilibili.com/video/BV1Fd4y1T7pD/?spm_id_from=333.999.0.0&vd_source=10527fd74695c7dd4ae2589a62aa5f89)
 
 # 客户端
 
@@ -129,6 +143,8 @@ redis 127.0.0.1:6379> DEL runoobkey
 在以上实例中 **DEL** 是一个命令， **runoobkey** 是一个键。 如果键被删除成功，命令执行后输出 **(integer) 1**，否则将输出 **(integer) 0**
 
 # 基本数据类型
+
+Redis支持诸如字符串（string）、哈希（hashe）、列表（list）、集合（set）、带范围查询的排序集合（sorted set）、bitmap、hyperloglog、带半径查询的地理空间索引（geospatial index）和流（stream）等数据结构。
 
 ## 字符串（String）
 
@@ -841,6 +857,10 @@ redis> GEOHASH Sicily Palermo Catania
 redis>
 ```
 
+## 位图（Bitmap）
+
+## 位域（Bitfield）
+
 ## 常用命令
 
 图片来源：blibli GeekHour 老师
@@ -984,57 +1004,6 @@ redis 127.0.0.1:7000> exec
 
 如果在 set b bbb 处失败，set a 已成功不会回滚，set c 还会继续执行。
 
-# 数据备份与恢复（RDB）
-
-## 备份（SAVE）
-
-Redis **SAVE** 命令用于创建当前数据库的备份。
-
-**语法**
-
-redis Save 命令基本语法如下：
-
-```shell
-redis 127.0.0.1:6379> SAVE 
-```
-
-**实例**
-
-```shell
-redis 127.0.0.1:6379> SAVE 
-OK
-```
-
-该命令将在 redis 安装目录中创建dump.rdb文件。
-
-------
-
-## 恢复数据
-
-如果需要恢复数据，只需将备份文件 (dump.rdb) 移动到 redis 安装目录并启动服务即可。获取 redis 目录可以使用 **CONFIG** 命令，如下所示：
-
-```shell
-redis 127.0.0.1:6379> CONFIG GET dir
-1) "dir"
-2) "/usr/local/redis/bin"
-```
-
-以上命令 **CONFIG GET dir** 输出的 redis 安装目录为 /usr/local/redis/bin。
-
-------
-
-## Bgsave
-
-创建 redis 备份文件也可以使用命令 **BGSAVE**，该命令在后台执行。
-
-### 实例
-
-```shell
-127.0.0.1:6379> BGSAVE
-
-Background saving started
-```
-
 # 性能测试
 
 Redis 性能测试是通过同时执行多个命令实现的。
@@ -1105,7 +1074,7 @@ LPUSH: 145560.41 requests per second
 
 以上实例中主机为 127.0.0.1，端口号为 6379，执行的命令为 set,lpush，请求数为 10000，通过 -q 参数让结果只显示每秒执行的请求数。
 
-# 管道技术
+# 管道技术（Pipeline）
 
 Redis是一种基于客户端-服务端模型以及请求/响应协议的TCP服务。这意味着通常情况下一个请求会遵循以下步骤：
 
@@ -1138,6 +1107,69 @@ redis
 ## 优势
 
 管道技术最显著的优势是提高了 redis 服务的性能。
+
+# 持久化
+
+## RDB
+
+### 备份（SAVE）
+
+Redis **SAVE** 命令用于创建当前数据库的备份。
+
+**语法**
+
+redis Save 命令基本语法如下：
+
+```shell
+redis 127.0.0.1:6379> SAVE 
+```
+
+**实例**
+
+```shell
+redis 127.0.0.1:6379> SAVE 
+OK
+```
+
+该命令将在 redis 安装目录中创建dump.rdb文件。
+
+------
+
+### 恢复数据
+
+如果需要恢复数据，只需将备份文件 (dump.rdb) 移动到 redis 安装目录并启动服务即可。获取 redis 目录可以使用 **CONFIG** 命令，如下所示：
+
+```shell
+redis 127.0.0.1:6379> CONFIG GET dir
+1) "dir"
+2) "/usr/local/redis/bin"
+```
+
+以上命令 **CONFIG GET dir** 输出的 redis 安装目录为 /usr/local/redis/bin。
+
+------
+
+### Bgsave
+
+创建 redis 备份文件也可以使用命令 **BGSAVE**，该命令在后台执行。
+
+#### 实例
+
+```shell
+127.0.0.1:6379> BGSAVE
+
+Background saving started
+```
+
+
+
+## AOF
+
+# 主从复制
+
+# 哨兵模式
+
+# 集群
 
 # 分区
 

@@ -381,7 +381,7 @@ $ git push origin v0.1.0
 
 Go modules中建议使用语义化版本控制，其建议的版本号格式如下：
 
-![image-20230929101806906](images/image-20230929101806906.png)
+![image-20230929101806906](https://s2.loli.net/2023/10/28/lQ4q9UngZhKa1ox.png)
 
 - 主版本号：发布了不兼容的版本迭代时递增（breaking changes）。
 - 次版本号：发布了功能性更新时递增。
@@ -471,7 +471,7 @@ require module/path v1.2.3
 
 引入某些没有发布过`tag`版本标识的依赖包时，`go.mod`中记录的依赖版本信息就会出现类似`v0.0.0-20210218074646-139b0bcd549d`的格式，由版本号、commit时间和commit的hash值组成。
 
-![image-20230929095915080](images/image-20230929095915080.png)
+![image-20230929095915080](https://s2.loli.net/2023/10/28/mqWO1MT6tR23sDK.png)
 
 ##### **文件结构**
 
@@ -710,11 +710,11 @@ const (
 
 #### **整型**
 
-![image-20230915170949297](images/image-20230915170949297.png)
+![image-20230915170949297](https://s2.loli.net/2023/10/28/OXsYuSZ96LwjzU4.png)
 
 #### **特殊整型**
 
-![image-20230915171029545](images/image-20230915171029545.png)
+![image-20230915171029545](https://s2.loli.net/2023/10/28/vUFS413Vi96tcYI.png)
 
 **注意：**使用时考虑`int`和`uint`可能在不同平台上的差异。
 
@@ -785,7 +785,7 @@ fmt.Println(c2)
 
 **转义符**
 
-![image-20230915171845594](images/image-20230915171845594.png)
+![image-20230915171845594](https://s2.loli.net/2023/10/28/YqDRHoMk482TCOa.png)
 
 **多行字符串**
 
@@ -1349,7 +1349,7 @@ func main() {
 - 切片的长度（len）
 - 切片的容量（cap）
 
-![image-20230915211250486](images/image-20230915211250486.png)
+![image-20230915211250486](https://s2.loli.net/2023/10/28/UpvV7JMrzNoQtCZ.png)
 
 #### **判断为空**
 
@@ -1976,7 +1976,7 @@ end
 
 `defer`语句执行的时机就在返回值赋值操作后，RET指令执行前。
 
-![image-20230916172452001](images/image-20230916172452001.png)
+![image-20230916172452001](https://s2.loli.net/2023/10/28/21Z7DCPmtpsQVRA.png)
 
 **思考题**
 
@@ -2052,7 +2052,7 @@ AA 1 3 4
 
 ##### **内置函数**
 
-![image-20230916200559562](C:\Users\sw\AppData\Roaming\Typora\typora-user-images\image-20230916200559562.png)
+![image-20230916200559562](https://s2.loli.net/2023/10/28/jgC1clnEeFpYwuk.png)
 
 ##### **panic/recover**
 
@@ -2156,7 +2156,7 @@ func main() {
 }
 ```
 
-![image-20230918191638370](images/image-20230918191638370.png)
+![image-20230918191638370](https://s2.loli.net/2023/10/28/3FlbgVXpcI54U9v.png)
 
 ##### **指针取值**
 
@@ -3088,7 +3088,7 @@ func init(){
 
 初始化过程是按照代码中引入的顺序来进行的
 
-![image-20230928220336621](images/image-20230928220336621.png)
+![image-20230928220336621](https://s2.loli.net/2023/10/28/6ib2ShEynRod8Zz.png)
 
 包的初始化是先从初始化包级别变量开始的。包级别变量的初始化会先于`init`初始化函数。
 
@@ -3594,7 +3594,7 @@ map[age:18 married:false name:沙河娜扎]
 
 接口值由“类型”和“值”组成，鉴于这两部分会根据存入值的不同而发生变化，我们称之为接口的`动态类型`和`动态值`
 
-![接口值示例](images/interface01.png)
+![接口值示例](https://s2.loli.net/2023/10/28/jhBvxyKklR1isUJ.png)
 
 例如：
 
@@ -3629,11 +3629,11 @@ m = c // 接口值m的动态类型为*Car，动态值为nil。
 fmt.Println(m == nil) // false 此时接口变量m与nil并不相等，因为它只是动态值的部分为nil，而动态类型部分保存着对应值的类型。
 ```
 
-![接口值示例](images/interface02.png)
+![接口值示例](https://s2.loli.net/2023/10/28/XqZoQVEJHyYSsTP.png)
 
-![接口值示例](images/interface03.png)
+![接口值示例](https://s2.loli.net/2023/10/28/wa9WVkMZQDvLAj6.png)
 
-![接口值示例](images/interface04.png)
+![接口值示例](https://s2.loli.net/2023/10/28/gcTXKqkAzxvFPD3.png)
 
 ##### **接口值比较**
 
@@ -4043,7 +4043,7 @@ const (
 
 `reflect.Value`类型提供的获取原始值的方法如下：
 
-![image-20230930221219562](images/image-20230930221219562.png)
+![image-20230930221219562](https://s2.loli.net/2023/10/28/5VWxNlsREGmeZ93.png)
 
 ```go
 func reflectValue(x interface{}) {
@@ -4154,7 +4154,7 @@ map中不存在的键： false
 
 `reflect.Type`中与获取结构体成员相关的的方法如下表所示。
 
-![image-20230930224221289](images/image-20230930224221289.png)
+![image-20230930224221289](https://s2.loli.net/2023/10/28/GxgFvCMq1NVZJQa.png)
 
 ##### **StructField类型**
 
@@ -4541,7 +4541,7 @@ func main() {
 
 在经历数个版本的迭代之后，目前 Go 语言的调度器采用的是 `GPM` 调度模型。
 
-![gpm](images/gpm.png)
+![gpm](https://s2.loli.net/2023/10/28/Ud84CWI9XSebvnH.png)
 
 其中：
 
@@ -4832,7 +4832,7 @@ ch5 = ch4          // 变量赋值时将ch4转为单向通道
 
 ##### **操作状态总结**
 
-![img](images/channel.png)
+![img](https://s2.loli.net/2023/10/28/4OazkTJevLHgU6F.png)
 
 **注意：**对已经关闭的通道再执行 close 也会引发 panic。
 
@@ -4894,7 +4894,7 @@ Go 语言中使用`sync`包中提供的`Mutex`类型来实现互斥锁。
 
 `sync.Mutex`提供了两个方法
 
-![image-20231002162008582](images/image-20231002162008582.png)
+![image-20231002162008582](https://s2.loli.net/2023/10/28/H2oqYkOIMlP4TBc.png)
 
 使用互斥锁能够保证同一时间有且只有一个 goroutine 进入临界区，其他的 goroutine 则在等待锁；
 
@@ -4940,7 +4940,7 @@ func main() {
 
 `sync.RWMutex`提供了以下5个方法。
 
-![image-20231002162359556](images/image-20231002162359556.png)
+![image-20231002162359556](https://s2.loli.net/2023/10/28/xZb5fMcOQLursiU.png)
 
 **读锁和写锁**
 
@@ -5033,7 +5033,7 @@ do(writeWithRWLock, readWithRWLock, 10, 1000) // x:10 cost:117.207592ms
 - 每个任务完成时通过调用 Done 方法将计数器减1。
 - 通过调用 Wait 来等待并发任务执行完，当计数器值为 0 时，表示所有并发任务已经完成。
 
-![image-20231002163121703](images/image-20231002163121703.png)
+![image-20231002163121703](https://s2.loli.net/2023/10/28/UPCknQyp1VsHOqM.png)
 
 **注意：**`sync.WaitGroup`是一个结构体，进行参数传递的时候要传递指针。
 
@@ -5098,7 +5098,7 @@ Go 语言中内置的 map 不是并发安全的，并发读写会报错
 
 不用像内置的 map 一样使用 make 函数初始化就能直接使用。同时`sync.Map`内置了诸如`Store`、`Load`、`LoadOrStore`、`Delete`、`Range`等操作方法。
 
-![image-20231002165043992](images/image-20231002165043992.png)
+![image-20231002165043992](https://s2.loli.net/2023/10/28/IJTqUpg8WNOvZCM.png)
 
 ```go
 // 并发安全的map
@@ -5135,7 +5135,7 @@ Go语言中原子操作由内置的标准库`sync/atomic`提供。
 
 **注意：**这些函数必须谨慎地保证正确使用。除了某些特殊的底层应用，使用通道或者 sync 包的函数/类型实现同步更好。
 
-![image-20231002165329733](images/image-20231002165329733.png)
+![image-20231002165329733](https://s2.loli.net/2023/10/28/2ecSXkulUOsYCKA.png)
 
 **性能比较案例：**
 
@@ -5397,7 +5397,7 @@ func main() {
 
 #### **互联网分层模型**
 
-![osi七层模型](images/osi.png)
+![osi七层模型](https://s2.loli.net/2023/10/28/3rPBXYzeb9IGnAi.png)
 
 #### **socket编程**
 
@@ -5405,7 +5405,7 @@ func main() {
 
 在设计模式中，`Socket`其实就是一个门面模式，它把复杂的TCP/IP协议族隐藏在`Socket`后面，对用户来说只需要调用Socket规定的相关函数，让`Socket`去组织符合指定的协议数据然后进行通信。
 
-![socket图解](images/socket.png)
+![socket图解](https://s2.loli.net/2023/10/28/4KJRUyvfLQ6ch3N.png)
 
 #### **TCP通信**
 
@@ -6136,7 +6136,7 @@ func OpenFile(name string, flag int, perm FileMode) (*File, error) {
 ```
 
 - `name`：要打开的文件名
-- `flag`：打开文件的模式。 模式有以下几种：![image-20230930193720955](images/image-20230930193720955.png)
+- `flag`：打开文件的模式。 模式有以下几种：![image-20230930193720955](https://s2.loli.net/2023/10/28/MQt7KSZ1EI2vUdO.png)
 - `perm`：文件权限，一个八进制数。r（读）04，w（写）02，x（执行）01。
 
 ##### **Write和WriteString**
