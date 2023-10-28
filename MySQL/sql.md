@@ -106,6 +106,8 @@ MySQL子查询称为内部查询，而包含子查询的查询称为外部查询
 
 ### 内连接（INNER JOIN）
 
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20201007112127683.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3UwMTQ0NTQ1Mzg=,size_16,color_FFFFFF,t_70)
+
 ```sql
 select * from T1 inner join T2 on T1.userid=T2.userid
 ```
@@ -117,6 +119,8 @@ left join xx
 on xx   （on后还可跟AND OR等限制）
 
 以左边表各列为基准
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20201007113347885.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3UwMTQ0NTQ1Mzg=,size_16,color_FFFFFF,t_70)
 
 ```sql
 select 
@@ -130,6 +134,10 @@ on
 ```
 
 ### 笛卡尔积连接（交叉联接）
+
+其实是数学领域的概念，就是对两个集合做乘法
+
+遍历左表的每一行数据，用左表每一行数据分别于与右表的每一行数据做关联
 
 CROSS JOIN
 
