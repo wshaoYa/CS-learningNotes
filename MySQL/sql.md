@@ -100,6 +100,98 @@ MySQL子查询称为内部查询，而包含子查询的查询称为外部查询
 
 ![img](http://www.yiibai.com/uploads/images/201707/1807/257110745_37696.png)
 
+### 联合查询（Union)
+
+UNION 操作符用于连接两个以上的 SELECT 语句的结果组合到一个结果集合中。多个 SELECT 语句会删除重复的数据。
+
+#### 语法
+
+MySQL UNION 操作符语法格式：
+
+```
+SELECT expression1, expression2, ... expression_n
+FROM tables
+[WHERE conditions]
+UNION [ALL | DISTINCT]
+SELECT expression1, expression2, ... expression_n
+FROM tables
+[WHERE conditions];
+```
+
+#### 参数
+
+- **expression1, expression2, ... expression_n**: 要检索的列。
+
+- **tables:** 要检索的数据表。
+
+- **WHERE conditions:** 可选， 检索条件。
+
+- **DISTINCT:** 可选，删除结果集中重复的数据。默认情况下 UNION 操作符已经删除了重复数据，所以 DISTINCT 修饰符对结果没啥影响。
+
+- **ALL:** 可选，返回所有结果集，包含重复数据。
+
+  - **UNION 语句**：用于将不同表中相同列中查询的数据展示出来；（不包括重复数据）
+
+    **UNION ALL 语句**：用于将不同表中相同列中查询的数据展示出来；（包括重复数据）
+
+#### 实例
+
+以下语句组合了从表`t1`和`t2`表返回的结果集：
+
+```mysql
+SELECT id
+FROM t1
+UNION
+SELECT id
+FROM t2; 
+```
+
+最终结果集包含查询返回的单独结果集的不同值：
+
+```mysql
++----+
+| id |
++----+
+|  1 |
+|  2 |
+|  3 |
+|  4 |
++----+
+4 rows in set (0.00 sec) 
+```
+
+因为值为2和3的行是重复的，所以`UNION`操作员将其删除并仅保留不同的行。 以下维基中说明了来自`t1`和`t2`表的两个结果集的并集：
+
+![MySQL UNION](http://www.begtut.com/wp-content/uploads/2019/08/MySQL-UNION.png)
+
+如果使用`UNION ALL`，则重复行（如果可用）将保留在结果中。因为`UNION ALL`不需要处理重复项，所以它的执行速度比 `UNION DISTINCT` 快。
+
+```mysql
+SELECT id
+FROM t1
+UNION ALL
+SELECT id
+FROM t2; 
+```
+
+运行结果：
+
+```mysql
++----+
+| id |
++----+
+|  1 |
+|  2 |
+|  3 |
+|  2 |
+|  3 |
+|  4 |
++----+
+6 rows in set (0.00 sec) 
+```
+
+如您所见，由于`UNION ALL`操作，重复项出现在组合结果集中 。
+
 ## 连接
 
 ### 内连接（INNER JOIN）
@@ -133,7 +225,7 @@ on
 
 ### 笛卡尔积连接（交叉联接）
 
-其实是数学领域的概念，就是对两个集合做乘法
+其实是数学领域的概念，就是对两个集合做乘法（暴力组合）
 
 遍历左表的每一行数据，用左表每一行数据分别于与右表的每一行数据做关联
 

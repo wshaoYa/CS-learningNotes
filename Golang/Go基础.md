@@ -6375,6 +6375,8 @@ int32最大值
 
 利用二分，在[0,n)范围内，找到**第一个使func中返回为true的值**！！
 
+如果想要找到**最后一个使func中返回为true的值**，在func函数内第一行让i++，并且根据题意修改return true和false的条件即可
+
 若没有，则返回n，而不是-1
 
 #### SearchInts(a []int, x int) int
