@@ -86,9 +86,7 @@
 
 - `git log --graph --oneline --decorate --all`：控制台界面查看分支图
 
-
-
-
+<img src="https://s2.loli.net/2023/11/02/mZEraufy4O8TAJl.png" alt="image-20231102102339036" style="zoom:50%;" />
 
 # .gitignore
 
@@ -142,3 +140,20 @@
   - 国内平台，对国内用户更友好
 - gitlab（极狐）：
   - 私有化部署，**区别于**github和gitee这些**公有的**代码托管平台，其可搭建自己的Gitlab服务器存储项目，安全性高，企业场景使用较多
+
+# 合并冲突解决
+
+**产生原因：**
+
+- 两个分支未修改同一个文件的同一处位置: Git 自动合并
+- 两个分支修改了同一个文件的同一处位置: 产生冲突
+
+**解决办法：**
+
+- 手工修改冲突文件，合并冲突内容
+- `git add file` 添加暂存区
+- `git commit -m "message"`  提交修改
+
+**中止合并：**
+
+`git merge --abort`：当不想继续执行合并操作时可以使用此命令来中止合并过程
