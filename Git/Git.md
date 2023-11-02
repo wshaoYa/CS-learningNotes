@@ -34,13 +34,16 @@
 
 <img src="https://s2.loli.net/2023/10/31/6kf27VWvM4PtX9x.png" alt="image-20231031150930824" style="zoom:50%;" />
 
-# 常用命令
+# 基本命令
+
+**tip：**一些命令过于复杂时，可用alias起别名方便调用
 
 - `git init`：创建仓库
 - `git clone`：克隆远程的一个现有的仓库至本地
 - `git status`：查看仓库的状态
 - `git add`：添加到暂存区
-- `git commit`：提交到本地仓库（只会提交暂存区里的文件）
+- `git commit -m "xxxx"`：提交到本地仓库（只会提交暂存区里的文件）
+  - `-a`表示commit前自动进行add，`-am`表示 `-a -m`的缩写合并，遂懒省事的写法：`git commit -am "xxx"`
 - `git log`：查看仓库提交历史记录
   - 可以使用 `--oneline` 参数来查看简洁的提交记录
 - `git ls-files`：查看暂存区内的文件
@@ -87,6 +90,15 @@
 - `git log --graph --oneline --decorate --all`：控制台界面查看分支图
 
 <img src="https://s2.loli.net/2023/11/02/mZEraufy4O8TAJl.png" alt="image-20231102102339036" style="zoom:50%;" />
+
+### 合并分支（merge、rebase）
+
+- `git merge branch-name`：合并分支
+- `git merge --abort`：中止合并
+- `git rebase branch-name`：合并分支
+  - 当前分支为curDev，目标合并到targetDev中，即可在curDev分支上执行`git rebase targetDev`，git会找到两分支的最近的公共子节点，以此为界限点，把curDev上新的内容接到targetDev中最新提交后面，即下图中的左侧。
+  - 反之，在targetDev上执行`git rebase curDev`，则会把targetDev公共子节点之后的提交接到curDev的最新提交后面，即下图中的右侧。
+  - <img src="https://s2.loli.net/2023/11/02/NX7GuC5kaFUno8T.png" alt="image-20231102112401998" style="zoom: 50%;" />
 
 # .gitignore
 
@@ -150,7 +162,7 @@
 
 **解决办法：**
 
-- 手工修改冲突文件，合并冲突内容
+- 找到冲突部分，手工修改冲突文件，合并冲突内容
 - `git add file` 添加暂存区
 - `git commit -m "message"`  提交修改
 
@@ -158,4 +170,3 @@
 
 `git merge --abort`：当不想继续执行合并操作时可以使用此命令来中止合并过程
 
-444
