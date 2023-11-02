@@ -100,6 +100,8 @@
   - 反之，在targetDev上执行`git rebase curDev`，则会把targetDev公共子节点之后的提交接到curDev的最新提交后面，即下图中的右侧。
   - <img src="https://s2.loli.net/2023/11/02/NX7GuC5kaFUno8T.png" alt="image-20231102112401998" style="zoom: 50%;" />
 
+
+
 # .gitignore
 
 **注意**：只能忽略暂未存到本地仓库（版本库）的文件，如本地仓库中已有，则即使.gitignore中声明了也没用
