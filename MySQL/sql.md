@@ -100,7 +100,7 @@ MySQL子查询称为内部查询，而包含子查询的查询称为外部查询
 
 ![img](http://www.yiibai.com/uploads/images/201707/1807/257110745_37696.png)
 
-### 联合查询（Union)
+### 联合查询（Union）
 
 UNION 操作符用于连接两个以上的 SELECT 语句的结果组合到一个结果集合中。多个 SELECT 语句会删除重复的数据。
 
@@ -196,17 +196,22 @@ FROM t2;
 
 ### 内连接（INNER JOIN）
 
+等价于多表连接通过where来限制筛选条件
+
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/20201007112127683.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3UwMTQ0NTQ1Mzg=,size_16,color_FFFFFF,t_70)
 
 ```sql
-select * from T1 inner join T2 on T1.userid=T2.userid
+# 内连接(取两表交集)
+SELECT * FROM tab1 a inner join tab2 b on a.age = b.age
+# 等同于
+SELECT * FROM tab1 a ,tab2 b where  a.age = b.age
 ```
 
 ### **左连接**（LEFT JOIN）
 
 left join xx
 
-on xx   （on后还可跟AND OR等限制）
+on xx   （on后还可跟AND OR等限制），
 
 以左边表各列为基准
 
@@ -219,11 +224,11 @@ from
   Employees eN
 left join
   EmployeeUNI eU
-on 
-  eN.id = eU.id
+on   # 此处的on也可用using(id)代替简化
+  eN.id = eU.id  
 ```
 
-### 笛卡尔积连接（交叉联接）
+### 笛卡尔积连接（交叉连接）
 
 其实是数学领域的概念，就是对两个集合做乘法（暴力组合）
 
@@ -472,3 +477,41 @@ MAX(*expression*)
 | 参数         | 描述                           |
 | :----------- | :----------------------------- |
 | *expression* | 必需。数值（可以是字段或公式） |
+
+### 窗口函数
+
+待补充学习
+
+## 临时表（WITH AS）
+
+如果一整句查询中**多个子查询都需要使用同一个子查询**的结果，那么就可以用with as，将共用的子查询提取出来，加个别名。后面查询语句可以直接用，对于大量复杂的SQL语句起到了很好的优化作用。
+
+使得大规模的sql语句可读可维护，结构更清晰
+
+**注意：**
+
+- 相当于一个临时表，但是不同于视图，不会存储起来，要与select配合使用。
+- 同一个select前可以有多个临时表，写一个with就可以，用逗号隔开，最后一个with语句不要用逗号。
+- with子句要用括号括起来。
+
+**实例：**
+
+```mysql
+WITH p1 AS (
+  SELECT DISTINCT product_id
+  FROM Products
+),
+p2 AS ( 
+  SELECT product_id,new_price
+  FROM Products
+  WHERE (product_id,change_date) IN (
+    xxx
+  )
+)
+
+SELECT p1.product_id,IFNULL(p2.new_price,10) AS price
+FROM  p1
+LEFT JOIN p2
+  ON p1.product_id  = p2.product_id
+```
+
