@@ -96,7 +96,8 @@
 - `git merge branch-name`：合并分支
 - `git merge --abort`：中止合并
 - `git rebase branch-name`：合并分支
-  - 当前分支为curDev，目标合并到targetDev中，即可在curDev分支上执行`git rebase targetDev`，git会找到两分支的最近的公共子节点，以此为界限点，把curDev上新的内容接到targetDev中最新提交后面，即下图中的左侧。
+  - 合并后分支没有变动，在main分支上rebase dev后仍处在main分支
+  - 当前分支为curDev，目标合并到targetDev中，即可在curDev分支上执行`git rebase targetDev`，git会找到两分支的最近的公共子节点，以此为界限点，把curDev上新的内容接到targetDev中最新提交后面（可抽象的理解为把targetDev中的改动commit直接挤进curDev中，挤的位置为两分支的最近的公共子节点处），即下图中的左侧。
   - 反之，在targetDev上执行`git rebase curDev`，则会把targetDev公共子节点之后的提交接到curDev的最新提交后面，即下图中的右侧。
   - <img src="https://s2.loli.net/2023/11/02/NX7GuC5kaFUno8T.png" alt="image-20231102112401998" style="zoom: 50%;" />
 
