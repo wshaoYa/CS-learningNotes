@@ -72,6 +72,35 @@ from t
 group by xxx
 ```
 
+### LIMIT 子句
+
+使用`LIMIT`子句来约束结果集中的行数。`LIMIT`子句接受一个或两个参数。两个参数的值必须为零或正整数
+
+下面说明了**两个参数**的`LIMIT`子句语法：
+
+```mysql
+SELECT 
+    column1,column2,...
+FROM
+    table
+LIMIT offset , count;
+```
+
+我们来查看`LIMIT`子句参数：
+
+- `offset`参数指定要返回的第一行的偏移量。第一行的偏移量为`0`，而不是`1`。(可选)
+- `count`指定要返回的最大行数。（必选）
+
+当您使用带有**一个参数**的`LIMIT`子句时，此参数将用于确定从结果集的开头返回的最大行数。
+
+```mysql
+SELECT 
+    column1,column2,...
+FROM
+    table
+LIMIT count;
+```
+
 ### **IN、NOT IN**
 
 ```sql
@@ -99,6 +128,73 @@ MySQL子查询称为内部查询，而包含子查询的查询称为外部查询
 当查询执行时，首先执行子查询并返回一个结果集。然后，将此结果集作为外部查询的输入。
 
 ![img](http://www.yiibai.com/uploads/images/201707/1807/257110745_37696.png)
+
+### BETWEEN
+
+`BETWEEN` 运算符选择给定范围内的值。 这些值可以是数字、文本或日期。
+
+`BETWEEN` 运算符具有包容性：包括开始值和结束值。（左右都是闭区间）
+
+```mysql
+SELECT column_name(s)
+FROM table_name
+WHERE column_name BETWEEN value1 AND value2;
+```
+
+
+
+## 连接
+
+### 内连接（INNER JOIN）
+
+等价于多表连接通过where来限制筛选条件
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20201007112127683.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3UwMTQ0NTQ1Mzg=,size_16,color_FFFFFF,t_70)
+
+```sql
+# 内连接(取两表交集)
+SELECT * FROM tab1 a inner join tab2 b on a.age = b.age
+# 等同于
+SELECT * FROM tab1 a ,tab2 b where  a.age = b.age
+```
+
+### **左连接**（LEFT JOIN）
+
+left join xx
+
+on xx   （on后还可跟AND OR等限制），
+
+以左边表各列为基准
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20201007113347885.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3UwMTQ0NTQ1Mzg=,size_16,color_FFFFFF,t_70)
+
+```sql
+select 
+  xx
+from
+  Employees eN
+left join
+  EmployeeUNI eU
+on   # 此处的on也可用using(id)代替简化
+  eN.id = eU.id  
+```
+
+### 笛卡尔积连接（交叉连接）
+
+其实是数学领域的概念，就是对两个集合做乘法（暴力组合）
+
+遍历左表的每一行数据，用左表每一行数据分别于与右表的每一行数据做关联
+
+CROSS JOIN
+
+```sql
+SELECT 
+    *
+FROM
+    Students s
+CROSS JOIN
+    Subjects sub
+```
 
 ### 联合查询（Union）
 
@@ -192,87 +288,22 @@ FROM t2;
 
 如您所见，由于`UNION ALL`操作，重复项出现在组合结果集中 。
 
-## 连接
-
-### 内连接（INNER JOIN）
-
-等价于多表连接通过where来限制筛选条件
-
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20201007112127683.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3UwMTQ0NTQ1Mzg=,size_16,color_FFFFFF,t_70)
-
-```sql
-# 内连接(取两表交集)
-SELECT * FROM tab1 a inner join tab2 b on a.age = b.age
-# 等同于
-SELECT * FROM tab1 a ,tab2 b where  a.age = b.age
-```
-
-### **左连接**（LEFT JOIN）
-
-left join xx
-
-on xx   （on后还可跟AND OR等限制），
-
-以左边表各列为基准
-
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20201007113347885.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3UwMTQ0NTQ1Mzg=,size_16,color_FFFFFF,t_70)
-
-```sql
-select 
-  xx
-from
-  Employees eN
-left join
-  EmployeeUNI eU
-on   # 此处的on也可用using(id)代替简化
-  eN.id = eU.id  
-```
-
-### 笛卡尔积连接（交叉连接）
-
-其实是数学领域的概念，就是对两个集合做乘法（暴力组合）
-
-遍历左表的每一行数据，用左表每一行数据分别于与右表的每一行数据做关联
-
-CROSS JOIN
-
-```sql
-SELECT 
-    *
-FROM
-    Students s
-CROSS JOIN
-    Subjects sub
-```
-
-## 分组
+## 分组（GROUP BY)
 
 GROUP BY 语句根据一个或多个列对结果集进行分组。
 
 在分组的列上我们可以使用 COUNT, SUM, AVG,等函数。
 
-## 排序
+## 排序（ORDER BY）
 
-order by
+ORDER BY 
 
-默认为升序 asc
+默认为升序 ASC
 
-可手动声明降序 desc
+可手动声明降序 DESC
 
 ```sql
 ORDER BY s.xx, sub.xx;
-```
-
-## BETWEEN
-
-`BETWEEN` 运算符选择给定范围内的值。 这些值可以是数字、文本或日期。
-
-`BETWEEN` 运算符具有包容性：包括开始值和结束值。（左右都是闭区间）
-
-```mysql
-SELECT column_name(s)
-FROM table_name
-WHERE column_name BETWEEN value1 AND value2;
 ```
 
 ## **聚合**函数
@@ -479,6 +510,8 @@ MAX(*expression*)
 | *expression* | 必需。数值（可以是字段或公式） |
 
 ### 窗口函数
+
+待补充学习
 
 待补充学习
 
