@@ -1,6 +1,6 @@
-# Mysql随笔（待后续整理）
+# mysqlMysql随笔（待后续整理）
 
-## 判断
+## 条件判断
 
 ### null
 
@@ -9,7 +9,7 @@ is null
 is not null
 ```
 
-### IF
+### 单条件判断（IF）
 
 类似于三目运算符
 
@@ -31,6 +31,40 @@ if(activity_type="start",-timestamp,timestamp)
             WHEN activity_type = 'start' THEN -timestamp
             ELSE timestamp
         END
+```
+
+### 多条件判断（CASE WHEN）
+
+CASE 语句遍历条件并在满足第一个条件时返回一个值（如 IF-THEN-ELSE 语句）。 因此，一旦条件为真，它将停止读取并返回结果。
+
+如果没有条件为真，它将返回 ELSE 子句中的值。
+
+如果没有ELSE部分且没有条件为真，则返回NULL。
+
+```mysql
+CASE
+    WHEN condition1 THEN result1
+    WHEN condition2 THEN result2
+    WHEN conditionN THEN resultN
+    ELSE result
+END
+```
+
+| 参数                                    | 描述                                        |
+| :-------------------------------------- | :------------------------------------------ |
+| *condition1, condition2, ...conditionN* | 必需。条件。 它们的评估顺序与列出的顺序相同 |
+| *result1, result2, ...resultN*          | 必需。条件为真时返回的值                    |
+
+**实例**
+
+```mysql
+SELECT CustomerName, City, Country
+FROM Customers
+ORDER BY
+(CASE
+    WHEN City IS NULL THEN Country
+    ELSE City
+END);
 ```
 
 ### IFNULL
@@ -511,9 +545,74 @@ MAX(*expression*)
 
 ### 窗口函数
 
-待补充学习
+[MySQL 窗口函数 | 新手教程 (begtut.com)](https://www.begtut.com/mysql/mysql-window-functions.html)
 
-待补充学习
+调用窗口函数的一般语法如下：
+
+```mysql
+window_function_name(expression) 
+    OVER (
+        [partition_defintion]
+        [order_definition]
+        [frame_definition]
+    ) 
+```
+
+在这个语法中：
+
+- 首先，指定窗口函数名称，后跟表达式。
+- 其次，指定`OVER`具有三个可能元素的子句：分区定义，顺序定义和帧定义。
+
+`OVER`子句后面的开括号和右括号是强制性的，即使没有表达式，例如：
+
+```mysql
+window_function_name(expression) OVER()
+```
+
+**实例**
+
+```mysql
++----------------+-------------+--------+
+| sales_employee | fiscal_year | sale   |
++----------------+-------------+--------+
+| Alice          |        2016 | 150.00 |
+| Alice          |        2017 | 100.00 |
+| Alice          |        2018 | 200.00 |
+| Bob            |        2016 | 100.00 |
+| Bob            |        2017 | 150.00 |
+| Bob            |        2018 | 200.00 |
+| John           |        2016 | 200.00 |
+| John           |        2017 | 150.00 |
+| John           |        2018 | 250.00 |
++----------------+-------------+--------+
+9 rows in set (0.01 sec)
+```
+
+```mysql
+SELECT 
+    fiscal_year, 
+    sales_employee,
+    sale,
+    SUM(sale) OVER (PARTITION BY fiscal_year) total_sales
+FROM
+    sales; 
+    
+    
++-------------+----------------+--------+-------------+
+| fiscal_year | sales_employee | sale   | total_sales |
++-------------+----------------+--------+-------------+
+|        2016 | Alice          | 150.00 |      450.00 |
+|        2016 | Bob            | 100.00 |      450.00 |
+|        2016 | John           | 200.00 |      450.00 |
+|        2017 | Alice          | 100.00 |      400.00 |
+|        2017 | Bob            | 150.00 |      400.00 |
+|        2017 | John           | 150.00 |      400.00 |
+|        2018 | Alice          | 200.00 |      650.00 |
+|        2018 | Bob            | 200.00 |      650.00 |
+|        2018 | John           | 250.00 |      650.00 |
++-------------+----------------+--------+-------------+
+9 rows in set (0.02 sec)。
+```
 
 ## 临时表（WITH AS）
 
@@ -548,3 +647,24 @@ LEFT JOIN p2
   ON p1.product_id  = p2.product_id
 ```
 
+## 别名
+
+通过使用 SQL，可以为表名称或列名称指定别名。
+
+基本上，创建别名是为了让列名称的可读性更强。
+
+### 列的 SQL 别名语法
+
+```mysql
+SELECT column_name AS alias_name
+FROM table_name;
+```
+
+注意：`column_name `也可以传入一个字符串值，如“Low salary”，则会新增一列数据，列名为`alias_name`，值全为`column_name`
+
+### 表的 SQL 别名语法
+
+```mysql
+SELECT column_name(s)
+FROM table_name AS alias_name;
+```

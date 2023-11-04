@@ -6396,3 +6396,104 @@ int32最大值
 #### OnesCount(x uint) int
 
 返回x中1位的个数
+
+#### Len(x uint) int
+
+x的二进制长度
+
+### slices
+
+#### Max[S ~[]E, E cmp.Ordered] (x S) E
+
+求切片x中的最大值
+
+#### Min[S ~[]E, E cmp.Ordered] (x S) E
+
+求切片x中的最小值
+
+#### MaxFunc[S ~[]E, E any] (x S, cmp func(a, b E) int) E
+
+自定义cmp规则求切片x中的最大值
+
+#### MinFunc[S ~[]E, E any] (x S, cmp func(a, b E) int) E
+
+自定义cmp规则求切片x中的最小值
+
+#### Replace[S ~[]E, E any] (s S, i, j int, v ...E) S
+
+将元素 s[i:j] 替换为给定的 v，并返回修改后的切片。如果 s[i:j] 不是 s 的一部分，则 panic。简单示例如下：
+
+```go
+func main() {
+	names := []string{"Alice", "Bob", "Vera", "Zac"}
+	names = slices.Replace(names, 1, 3, "Bill", "Billie", "Cat")
+	fmt.Println(names) // [Alice Bill Billie Cat Zac]
+}
+```
+
+#### Reverse[S ~[]E, E any] (s S)
+
+反转切片中的元素
+
+```go
+func main() {
+	names := []string{"alice", "Bob", "VERA"}
+	slices.Reverse(names)
+	fmt.Println(names) // [VERA Bob alice]
+}
+```
+
+#### Sort[S ~[]E, E cmp.Ordered] (x S)
+
+对有序类型的切片进行升序排序。对于浮点数类型，NaN 排在其它值之前。
+
+```go
+func main() {
+	s1 := []int8{0, 42, -10, 8}
+	slices.Sort(s1) 
+	fmt.Println(s1) // [-10 0 8 42]
+
+	s2 := []float64{0, math.NaN(), -10, 8, math.NaN()}
+	slices.Sort(s2)
+	fmt.Println(s2) // [NaN NaN -10 0 8]
+}
+```
+
+#### SortFunc[S ~[]E, E any] (x S, cmp func(a, b E) int)
+
+按照 cmp 函数确定的升序对切片 x 进行排序，这种排序不能保证稳定。Cmp (a, b) 函数应该在 a < b 时返回一个负数，在 a > b 时返回一个正数，在 a == b 时返回零。SortFunc 要求 cmp 函数是严格的弱排序类型。
+
+```go
+func main() {
+	names := []string{"Bob", "alice", "VERA"}
+	slices.SortFunc(names, func(a, b string) int {
+		return cmp.Compare(strings.ToLower(a), strings.ToLower(b))
+	})
+	fmt.Println(names) // [alice Bob VERA]
+}
+```
+
+#### SortStableFunc[S ~[]E, E any] (x S, cmp func(a, b E) int)
+
+对切片 x 进行排序，同时保持相等元素的原始顺序，使用 cmp 以与 SortFunc 相同的方式比较元素。
+
+```go
+func main() {
+	type Person struct {
+		Name string
+		Age  int
+	}
+	people := []Person{
+		{"Gopher", 13},
+		{"Alice", 20},
+		{"Bob", 24},
+		{"Alice", 55},
+	}
+	// Stable sort by name, keeping age ordering of Alices intact
+	slices.SortStableFunc(people, func(a, b Person) int {
+		return cmp.Compare(a.Name, b.Name)
+	})
+	fmt.Println(people) // [{Alice 20} {Alice 55} {Bob 24} {Gopher 13}]
+}
+```
+
