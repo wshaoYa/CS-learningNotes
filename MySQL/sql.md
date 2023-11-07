@@ -4,7 +4,7 @@
 
 ### null
 
-```sql
+```mysql
 is null
 is not null
 ```
@@ -20,7 +20,7 @@ is not null
 
 例子：
 
-```sql
+```mysql
 if(activity_type="start",-timestamp,timestamp)
 ```
 
@@ -71,7 +71,7 @@ END);
 
 `IFNULL`函数的语法：
 
-```sql
+```mysql
 IFNULL(expression_1,expression_2);
 ```
 
@@ -83,7 +83,7 @@ IFNULL(expression_1,expression_2);
 
 从表中查询数据时，可能会收到重复的行记录。为了删除这些重复行，可以在`SELECT`语句中使用`DISTINCT`子句。
 
-```sql
+```mysql
 SELECT DISTINCT
     columns
 FROM
@@ -100,7 +100,7 @@ WHERE
 COUNT(expression)
 ```
 
-```sql
+```mysql
 select count(xxx) as cnt 
 from t
 group by xxx
@@ -137,7 +137,7 @@ LIMIT count;
 
 ### **IN、NOT IN**
 
-```sql
+```mysql
 select *
 from t
 where xx not in (
@@ -157,7 +157,7 @@ where xx in (
 
 ### 子查询
 
-MySQL子查询称为内部查询，而包含子查询的查询称为外部查询。 子查询可以在使用表达式的任何地方使用，并且必须在括号中关闭。
+MySQL子查询称为内部查询，而包含子查询的查询称为外部查询。 子查询可以在使用表达式的任何地方使用，并且**必须在括号中关闭！！**同时也可保障代码逻辑清晰易读 ovo
 
 当查询执行时，首先执行子查询并返回一个结果集。然后，将此结果集作为外部查询的输入。
 
@@ -175,21 +175,23 @@ FROM table_name
 WHERE column_name BETWEEN value1 AND value2;
 ```
 
-
-
 ## 连接
 
 ### 内连接（INNER JOIN）
 
 等价于多表连接通过where来限制筛选条件
 
+join等价于inner join内连接
+
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/20201007112127683.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3UwMTQ0NTQ1Mzg=,size_16,color_FFFFFF,t_70)
 
-```sql
+```mysql
 # 内连接(取两表交集)
 SELECT * FROM tab1 a inner join tab2 b on a.age = b.age
 # 等同于
 SELECT * FROM tab1 a ,tab2 b where  a.age = b.age
+# 等同于
+SELECT * FROM tab1 a join tab2 b on a.age = b.age
 ```
 
 ### **左连接**（LEFT JOIN）
@@ -202,7 +204,7 @@ on xx   （on后还可跟AND OR等限制），
 
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/20201007113347885.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3UwMTQ0NTQ1Mzg=,size_16,color_FFFFFF,t_70)
 
-```sql
+```mysql
 select 
   xx
 from
@@ -213,6 +215,25 @@ on   # 此处的on也可用using(id)代替简化
   eN.id = eU.id  
 ```
 
+#### on 条件与where 条件
+
+- **使用位置**
+  - on 条件位置在join后面
+  - where 条件在join 与on完成的后面
+
+- **使用对象**
+  - on 的使用对象是被关联表
+  - where的使用对象可以是主表，也可以是关联表
+
+- **选择与使用**
+  - 主表条件筛选：只能在where后面使用。
+  - 被关联表，如果是想缩小join范围，可以放置到on后面。如果是关联后再查询，可以放置到where 后面。 
+  - 如果left join 中，where条件有对被关联表的 关联字段的 非空查询，与使用inner join的效果后，在进行where 筛选的效果是一样的。不能起到left join的作用。
+
+**执行顺序问题**
+
+先执行on条件筛选， 在进行join， 最后进行where 筛选
+
 ### 笛卡尔积连接（交叉连接）
 
 其实是数学领域的概念，就是对两个集合做乘法（暴力组合）
@@ -221,7 +242,7 @@ on   # 此处的on也可用using(id)代替简化
 
 CROSS JOIN
 
-```sql
+```mysql
 SELECT 
     *
 FROM
@@ -238,7 +259,7 @@ UNION 操作符用于连接两个以上的 SELECT 语句的结果组合到一个
 
 MySQL UNION 操作符语法格式：
 
-```
+```mysql
 SELECT expression1, expression2, ... expression_n
 FROM tables
 [WHERE conditions]
@@ -269,11 +290,13 @@ FROM tables
 以下语句组合了从表`t1`和`t2`表返回的结果集：
 
 ```mysql
-SELECT id
-FROM t1
+(SELECT id
+FROM t1)
+
 UNION
-SELECT id
-FROM t2; 
+
+(SELECT id
+FROM t2) 
 ```
 
 最终结果集包含查询返回的单独结果集的不同值：
@@ -336,8 +359,10 @@ ORDER BY
 
 可手动声明降序 DESC
 
-```sql
-ORDER BY s.xx, sub.xx;
+可依据多个属性组合进行排序（例如：`order by s1.name DESC, s2.age ASC,s3.score DESC`）
+
+```mysql
+ORDER BY s.xx, sub.xx,sub.yy;
 ```
 
 ## **聚合**函数
@@ -376,7 +401,7 @@ SUM(DISTINCT expression)
 
 where 优先级高于 group by 无法在group by之后进行筛选使用。聚合函数 having 优先级低于 group by，可用于group by之后的筛选。
 
-```sql
+```mysql
 SELECT name 
 FROM Employee
 WHERE id IN (
@@ -411,7 +436,7 @@ DATEDIFF() 函数返回两个日期之间的天数。
 
 **语法**
 
-```
+```mysql
 DATEDIFF(date1,date2)
 ```
 
@@ -425,7 +450,7 @@ datediff(日期1, 日期2)
 
 得到的结果是日期1与日期2相差的天数。 如果日期1比日期2大，结果为正（大多少天）；如果日期1比日期2小，结果为负（小多少天）。
 
-```sql
+```mysql
 datediff(w2.date,w1.date)
 ```
 
@@ -479,7 +504,7 @@ DATE_FORMAT(date,format)
 
 下面的脚本使用 DATE_FORMAT() 函数来显示不同的格式。我们使用 NOW() 来获得当前的日期/时间：
 
-```
+```mysql
 DATE_FORMAT(NOW(),'%b %d %Y %h:%i %p')
 DATE_FORMAT(NOW(),'%m-%d-%Y')
 DATE_FORMAT(NOW(),'%d %b %y')
@@ -488,7 +513,7 @@ DATE_FORMAT(NOW(),'%d %b %Y %T:%f')
 
 结果类似：
 
-```
+```mysql
 Dec 29 2008 11:45 PM
 12-29-2008
 29 Dec 08
@@ -499,7 +524,7 @@ Dec 29 2008 11:45 PM
 
 #### **字符串长度**
 
-```sql
+```mysql
 where CHAR_LENGTH(xxx)>15
 where CHAR_LENGTH(xxx)>=15
 where CHAR_LENGTH(xxx)!=15
