@@ -13,3 +13,9 @@ docker desktop
 # 学习资源
 
 [Docker 教程 | 菜鸟教程 (runoob.com)](https://www.runoob.com/docker/docker-tutorial.html)
+
+
+
+
+
+还是应文字记录下笔记，后续待补充）

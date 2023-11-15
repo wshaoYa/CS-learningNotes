@@ -6403,23 +6403,33 @@ x的二进制长度
 
 ### slices
 
-#### Max[S ~[]E, E cmp.Ordered] (x S) E
+#### Max
+
+`Max[S ~[]E, E cmp.Ordered] (x S) E`
 
 求切片x中的最大值
 
-#### Min[S ~[]E, E cmp.Ordered] (x S) E
+#### Min
+
+`Min[S ~[]E, E cmp.Ordered] (x S) E`
 
 求切片x中的最小值
 
-#### MaxFunc[S ~[]E, E any] (x S, cmp func(a, b E) int) E
+#### MaxFunc
+
+`MaxFunc[S ~[]E, E any] (x S, cmp func(a, b E) int) E`
 
 自定义cmp规则求切片x中的最大值
 
-#### MinFunc[S ~[]E, E any] (x S, cmp func(a, b E) int) E
+#### MinFunc
+
+`MinFunc[S ~[]E, E any] (x S, cmp func(a, b E) int) E`
 
 自定义cmp规则求切片x中的最小值
 
-#### Replace[S ~[]E, E any] (s S, i, j int, v ...E) S
+#### Replace
+
+`Replace[S ~[]E, E any] (s S, i, j int, v ...E) S`
 
 将元素 s[i:j] 替换为给定的 v，并返回修改后的切片。如果 s[i:j] 不是 s 的一部分，则 panic。简单示例如下：
 
@@ -6431,7 +6441,9 @@ func main() {
 }
 ```
 
-#### Reverse[S ~[]E, E any] (s S)
+#### Reverse
+
+`Reverse[S ~[]E, E any] (s S)`
 
 反转切片中的元素
 
@@ -6443,7 +6455,9 @@ func main() {
 }
 ```
 
-#### Sort[S ~[]E, E cmp.Ordered] (x S)
+#### Sort
+
+`Sort[S ~[]E, E cmp.Ordered] (x S)`
 
 对有序类型的切片进行升序排序。对于浮点数类型，NaN 排在其它值之前。
 
@@ -6459,7 +6473,9 @@ func main() {
 }
 ```
 
-#### SortFunc[S ~[]E, E any] (x S, cmp func(a, b E) int)
+#### SortFunc
+
+`SortFunc[S ~[]E, E any] (x S, cmp func(a, b E) int)`
 
 按照 cmp 函数确定的升序对切片 x 进行排序，这种排序不能保证稳定。Cmp (a, b) 函数应该在 a < b 时返回一个负数，在 a > b 时返回一个正数，在 a == b 时返回零。SortFunc 要求 cmp 函数是严格的弱排序类型。
 
@@ -6473,7 +6489,9 @@ func main() {
 }
 ```
 
-#### SortStableFunc[S ~[]E, E any] (x S, cmp func(a, b E) int)
+#### SortStableFunc
+
+`SortStableFunc[S ~[]E, E any] (x S, cmp func(a, b E) int)`
 
 对切片 x 进行排序，同时保持相等元素的原始顺序，使用 cmp 以与 SortFunc 相同的方式比较元素。
 

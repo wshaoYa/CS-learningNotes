@@ -77,6 +77,10 @@ IFNULL(expression_1,expression_2);
 
 如果`expression_1`不为`NULL`，则`IFNULL`函数返回`expression_1`; 否则返回`expression_2`的结果。
 
+注意：`expression_1`可以是某个表的某个字段，也可以是select查出来的某个字段这个整体直接当做`expression1`等等
+
+[176. 第二高的薪水 - 力扣（LeetCode）](https://leetcode.cn/problems/second-highest-salary/description/?envType=study-plan-v2&envId=sql-free-50)
+
 ## 查询
 
 ### 去重（DISTINCT）
@@ -106,7 +110,7 @@ from t
 group by xxx
 ```
 
-### LIMIT 子句
+### LIMIT
 
 使用`LIMIT`子句来约束结果集中的行数。`LIMIT`子句接受一个或两个参数。两个参数的值必须为零或正整数
 
@@ -155,6 +159,14 @@ where xx in (
 )
 ``````
 
+**踩坑**
+
+当使用 `IN` 或 `NOT IN` 操作符时，需要提供一个值列表，例如 `SELECT column_name(s) FROM table_name WHERE column_name IN (value1,value2,...);`。
+
+试图将一个临时表(WITH AS)（`sameInsur` 和 `sameLoc`）用作值列表，这是不允许的！！
+
+这时可以再嵌套一层SELECT取出值列表 `(SELECT * FROM sameInsur)`
+
 ### 子查询
 
 MySQL子查询称为内部查询，而包含子查询的查询称为外部查询。 子查询可以在使用表达式的任何地方使用，并且**必须在括号中关闭！！**同时也可保障代码逻辑清晰易读 ovo
@@ -174,6 +186,80 @@ SELECT column_name(s)
 FROM table_name
 WHERE column_name BETWEEN value1 AND value2;
 ```
+
+### 模糊查询（LIKE）
+
+`LIKE` 运算符在 `WHERE` 子句中用于搜索列中的指定模式。
+
+有两个通配符经常与 `LIKE` 运算符一起使用：
+
+- 百分号 (%) 表示零个、一个或多个字符
+- 下划线符号 (_) 代表一个，单个字符
+
+百分号和下划线也可以组合使用！
+
+**LIKE 语法**
+
+```mysql
+SELECT column1, column2, ...
+FROM table_name
+WHERE columnN LIKE pattern;
+```
+
+**提示：**您还可以使用 `AND` 或 `OR` 运算符组合任意数量的条件。
+
+以下是一些示例，展示了带有 '%' 和 '_' 通配符的不同 `LIKE` 运算符：
+
+| LIKE 运算符                    | 描述                                       |
+| :----------------------------- | :----------------------------------------- |
+| WHERE CustomerName LIKE 'a%'   | 查找以"a"开头的任何值                      |
+| WHERE CustomerName LIKE '%a'   | 查找以"a"结尾的任何值                      |
+| WHERE CustomerName LIKE '%or%' | 查找在任何位置有"或"的任何值               |
+| WHERE CustomerName LIKE '_r%'  | 查找第二个位置有"r"的任何值                |
+| WHERE CustomerName LIKE 'a_%'  | 查找以"a"开头且长度至少为 2 个字符的任何值 |
+| WHERE CustomerName LIKE 'a__%' | 查找以"a"开头且长度至少为 3 个字符的任何值 |
+| WHERE ContactName LIKE 'a%o'   | 查找以"a"开头并以"o"结尾的任何值           |
+
+## 删除
+
+`DELETE`语句用于删除表中已有的记录。
+
+```mysql
+DELETE 
+FROM xx 
+WHERE xx;
+```
+
+**注意：**删除表中的记录时要小心！ 请注意 `DELETE` 语句中的 `WHERE` 子句。 `WHERE` 子句指定应该删除哪些记录。 如果省略`WHERE`子句，表中的所有记录都会被删除！
+
+### 自连接-筛选删除
+
+在DELETE官方文档中，给出了这一用法，比如下面这个DELETE语句👇
+
+````mysql
+DELETE t1 
+FROM t1 
+LEFT JOIN t2 
+	ON t1.id=t2.id 
+WHERE t2.id IS NULL;
+````
+
+这种DELETE方式很陌生，竟然和SELETE的写法类似。它涉及到t1和t2两张表，DELETE t1表示要删除t1的一些记录，具体删哪些，就看WHERE条件，满足就删；
+
+这里删的是t1表中，跟t2匹配不上的那些记录。
+
+所以，官方sql中，DELETE p1就表示从p1表中删除满足WHERE条件的记录。
+
+**实例**
+
+```mysql
+DELETE p1
+FROM Person AS p1 ,Person AS p2
+WHERE p1.id > p2.id AND
+  p1.email = p2.email
+```
+
+[196. 删除重复的电子邮箱 - 力扣（LeetCode）](https://leetcode.cn/problems/delete-duplicate-emails/solutions/219860/dui-guan-fang-ti-jie-zhong-delete-he-de-jie-shi-by/?envType=study-plan-v2&envId=sql-free-50)
 
 ## 连接
 
@@ -351,6 +437,8 @@ GROUP BY 语句根据一个或多个列对结果集进行分组。
 
 在分组的列上我们可以使用 COUNT, SUM, AVG,等函数。
 
+可依据多个属性组合进行分组（例如：`group by sex, agex`）
+
 ## 排序（ORDER BY）
 
 ORDER BY 
@@ -522,7 +610,7 @@ Dec 29 2008 11:45 PM
 
 ### 字符串函数
 
-#### **字符串长度**
+#### **长度**
 
 ```mysql
 where CHAR_LENGTH(xxx)>15
@@ -530,6 +618,48 @@ where CHAR_LENGTH(xxx)>=15
 where CHAR_LENGTH(xxx)!=15
 where CHAR_LENGTH(xxx)=15
 ```
+
+#### 拼接
+
+CONCAT() 函数将两个或多个表达式相加。
+
+**语法**
+
+```mysql
+CONCAT(expression1, expression2, expression3,...)
+```
+
+**参数值**
+
+| 参数                                          | 描述                                                         |
+| :-------------------------------------------- | :----------------------------------------------------------- |
+| *expression1, expression2, expression3, etc.* | 必需。要加在一起的表达式。**注意：** 如果任何表达式为NULL值，则返回NULL |
+
+**实例**
+
+将几个字符串加在一起：
+
+```mysql
+SELECT CONCAT("SQL ", "Tutorial ", "is ", "fun!") AS ConcatenatedString;
+```
+
+#### 命令汇总
+
+- `CONCAT(str1, str2) :` 拼接字符串
+- `UPPER(str) :` 字符串变成大写
+- `LOWER(str) :` 字符串变成小写
+- `LENGTH(str) :` 获取字符串的长度
+- `LEFT(str,len) :` 获取字符串左边 len 个字符
+- `RIGHT(str,len) :` 获取字符串右边 len 个字符
+- `SUBSTR(str,start,len) :` 获取 str 中从 start 开始的 len 个字符
+- `LOCATE(substr, str, start)`：
+  - 判断substr在str中第一次出现的位置，找不到则输出0。start为起始位置，默认为1。（mysql中字符串起始下标从1开始计算）
+- `GROUP_CONCAT`:
+  - 以指定分隔符指定排序 拼接多个字符串
+  - `group_concat([DISTINCT] 要连接的字段 [Order BY ASC/DESC 排序字段] [Separator '分隔符'])`
+  - 默认为升序ASC，分隔符为","
+  - [MYSQL GROUP_CONCAT函数 - 简书 (jianshu.com)](https://www.jianshu.com/p/7a1df0ce6d00)
+  - [1484. 按日期分组销售产品 - 力扣（LeetCode）](https://leetcode.cn/problems/group-sold-products-by-the-date/description/?envType=study-plan-v2&envId=sql-free-50)
 
 ### 数值函数
 
@@ -650,6 +780,8 @@ FROM
 - 相当于一个临时表，但是不同于视图，不会存储起来，要与select配合使用。
 - 同一个select前可以有多个临时表，写一个with就可以，用逗号隔开，最后一个with语句不要用逗号。
 - with子句要用括号括起来。
+- 当使用 `IN` 或 `NOT IN` 操作符时，需要提供一个值列表，例如 `SELECT column_name(s) FROM table_name WHERE column_name IN (value1,value2,...);`。然而在你的查询中，你试图将一个临时表（`sameInsur` 和 `sameLoc`）用作值列表，这是不允许的！！
+  - 这时可以再嵌套一层取出值列表 `(SELECT * FROM sameInsur)`
 
 **实例：**
 
