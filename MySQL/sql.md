@@ -1,4 +1,4 @@
-# Mysql随笔（待后续整理）
+# MySQL随笔知识点
 
 ## 条件判断
 
@@ -186,6 +186,8 @@ SELECT column_name(s)
 FROM table_name
 WHERE column_name BETWEEN value1 AND value2;
 ```
+
+[1327. 列出指定时间段内所有的下单产品 - 力扣（LeetCode）](https://leetcode.cn/problems/list-the-products-ordered-in-a-period/description/?envType=study-plan-v2&envId=sql-free-50)
 
 ### 模糊查询（LIKE）
 
@@ -487,7 +489,7 @@ SUM(DISTINCT expression)
 
 在group by 之后对一些聚合函数计算出来的结果（例count、avg、sum等）的进一步筛选
 
-where 优先级高于 group by 无法在group by之后进行筛选使用。聚合函数 having 优先级低于 group by，可用于group by之后的筛选。
+**重点注意**：where 优先级高于 group by 无法在group by之后进行筛选使用。聚合函数 having 优先级低于 group by，可用于group by之后的筛选。
 
 ```mysql
 SELECT name 
@@ -499,6 +501,8 @@ WHERE id IN (
   HAVING COUNT(managerId)>=5
 )
 ```
+
+[1327. 列出指定时间段内所有的下单产品 - 力扣（LeetCode）](https://leetcode.cn/problems/list-the-products-ordered-in-a-period/description/?envType=study-plan-v2&envId=sql-free-50)
 
 ### MOD
 
@@ -610,7 +614,7 @@ Dec 29 2008 11:45 PM
 
 ### 字符串函数
 
-#### **长度**
+#### **长度**（CHAR_LENGTH）
 
 ```mysql
 where CHAR_LENGTH(xxx)>15
@@ -619,7 +623,7 @@ where CHAR_LENGTH(xxx)!=15
 where CHAR_LENGTH(xxx)=15
 ```
 
-#### 拼接
+#### 拼接（CONCAT）
 
 CONCAT() 函数将两个或多个表达式相加。
 
@@ -768,6 +772,30 @@ FROM
 +-------------+----------------+--------+-------------+
 9 rows in set (0.02 sec)。
 ```
+
+### 正则表达式
+
+`REGEXP` 就是 **reg**ular **exp**ression 正则表达式 的意思
+
+一般来说，如果你被要求匹配一个字符串，应该最先想到写一个正则表达式模式进行匹配。
+
+正则表达式提供各种功能，以下是一些相关功能：
+
+- `^`：表示一个字符串或行的开头
+- `[a-z]`：表示一个字符范围，匹配从 `a` 到 `z` 的任何字符。
+  - `[0-9]`：表示一个字符范围，匹配从 `0` 到 `9` 的任何字符。
+  - `[a-zA-Z]`：这个变量匹配从 `a `到 `z` 或 `A` 到 `Z` 的任何字符。请注意，你可以在方括号内指定的字符范围的数量没有限制，您可以添加想要匹配的其他字符或范围。
+  - `[^a-z]`：这个变量匹配不在 `a` 到 `z` 范围内的任何字符。请注意，字符 `^` 用来否定字符范围，它在方括号内的含义与它的方括号外表示开始的含义不同。
+- `[a-z]*`：表示一个字符范围，匹配从 `a` 到 `z` 的任何字符 0 次或多次。
+- `[a-z]+`：表示一个字符范围，匹配从 `a` 到 `z` 的任何字符 1 次或多次。
+- `.`：匹配任意一个字符。
+- `\.`：表示句点字符。请注意，反斜杠用于转义句点字符，因为句点字符在正则表达式中具有特殊含义。
+  - 注意，在许多语言中，你需要转义反斜杠本身，因此需要使用`\\.`。(mysql好像就需要两个斜杠\ )
+- `$`：表示一个字符串或行的结尾。
+
+[MySQL 正则表达式 | 菜鸟教程 (runoob.com)](https://www.runoob.com/mysql/mysql-regexp.html)
+
+[1517. 查找拥有有效邮箱的用户 - 力扣（LeetCode）](https://leetcode.cn/problems/find-users-with-valid-e-mails/description/?envType=study-plan-v2&envId=sql-free-50)
 
 ## 临时表（WITH AS）
 

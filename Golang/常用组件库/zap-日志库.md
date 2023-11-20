@@ -286,6 +286,8 @@ writeSyncer := zapcore.AddSync(file)
 
 我们将修改上述部分中的Logger代码，并重写`InitLogger()`方法。其余方法—`main()` /`SimpleHttpGet()`保持不变。
 
+**实例**
+
 ```go
 func InitLogger() {
 	writeSyncer := getLogWriter()
@@ -341,14 +343,17 @@ return zapcore.NewConsoleEncoder(zap.NewProductionEncoderConfig())
 
 我们要做的第一件事是覆盖默认的`ProductionConfig()`，并进行以下更改:
 
+- 修改时间属性的key名称为"time"，默认为"ts"
+
 - 修改时间编码器
 - 在日志文件中使用大写字母记录日志级别
 
 ```go
 func getEncoder() zapcore.Encoder {
 	encoderConfig := zap.NewProductionEncoderConfig()
-	encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
-	encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder
+	encoderConfig.TimeKey = "time"                          // 属性time的key名称，默认为ts
+	encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder   // 时间格式人类可读
+	encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder // 大写日志等级
 	return zapcore.NewConsoleEncoder(encoderConfig)
 }
 ```
@@ -591,6 +596,10 @@ func Default() *Engine {
 
 这里以zap为例，我们实现两个中间件如下：
 
+#### 非zap.L()实现
+
+不调用zap中内置的全局logger，而是使用函数传来的参数logger
+
 ```go
 // GinLogger 接收gin框架默认的日志
 func GinLogger(logger *zap.Logger) gin.HandlerFunc {
@@ -659,6 +668,81 @@ func GinRecovery(logger *zap.Logger, stack bool) gin.HandlerFunc {
 		}()
 		c.Next()
 	}
+}
+```
+
+#### zap.L()实现
+
+调用zap中内置的全局logger
+
+```go
+// GinLogger 接收gin框架默认的日志
+func GinLogger() gin.HandlerFunc {
+    return func(c *gin.Context) {
+       start := time.Now()
+       path := c.Request.URL.Path
+       query := c.Request.URL.RawQuery
+       c.Next()
+
+       cost := time.Since(start)
+       zap.L().Info(path,
+          zap.Int("status", c.Writer.Status()),
+          zap.String("method", c.Request.Method),
+          zap.String("path", path),
+          zap.String("query", query),
+          zap.String("ip", c.ClientIP()),
+          zap.String("user-agent", c.Request.UserAgent()),
+          zap.String("errors", c.Errors.ByType(gin.ErrorTypePrivate).String()),
+          zap.Duration("cost", cost),
+       )
+    }
+}
+
+// GinRecovery recover掉项目可能出现的panic，并使用zap记录相关日志
+func GinRecovery(stack bool) gin.HandlerFunc {
+    return func(c *gin.Context) {
+       defer func() {
+          if err := recover(); err != nil {
+             // Check for a broken connection, as it is not really a
+             // condition that warrants a panic stack trace.
+             var brokenPipe bool
+             if ne, ok := err.(*net.OpError); ok {
+                if se, ok := ne.Err.(*os.SyscallError); ok {
+                   if strings.Contains(strings.ToLower(se.Error()), "broken pipe") || strings.Contains(strings.ToLower(se.Error()), "connection reset by peer") {
+                      brokenPipe = true
+                   }
+                }
+             }
+
+             httpRequest, _ := httputil.DumpRequest(c.Request, false)
+             if brokenPipe {
+                zap.L().Error(c.Request.URL.Path,
+                   zap.Any("error", err),
+                   zap.String("request", string(httpRequest)),
+                )
+                // If the connection is dead, we can't write a status to it.
+                c.Error(err.(error)) // nolint: errcheck
+                c.Abort()
+                return
+             }
+
+             if stack {
+                zap.L().Error("[Recovery from panic]",
+                   zap.Any("error", err),
+                   zap.String("request", string(httpRequest)),
+                   zap.String("stack", string(debug.Stack())),
+                )
+             } else {
+                zap.L().Error("[Recovery from panic]",
+                   zap.Any("error", err),
+                   zap.String("request", string(httpRequest)),
+                )
+             }
+             c.AbortWithStatus(http.StatusInternalServerError)
+          }
+       }()
+       c.Next()
+    }
 }
 ```
 
