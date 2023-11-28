@@ -322,6 +322,8 @@ on   # 此处的on也可用using(id)代替简化
 
 先执行on条件筛选， 在进行join， 最后进行where 筛选
 
+[607. 销售员 - 力扣（LeetCode）](https://leetcode.cn/problems/sales-person/description/)
+
 ### 笛卡尔积连接（交叉连接）
 
 其实是数学领域的概念，就是对两个集合做乘法（暴力组合）

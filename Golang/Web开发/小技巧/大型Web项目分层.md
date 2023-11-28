@@ -20,3 +20,24 @@ MVC 模式代表 Model-View-Controller（模型-视图-控制器） 模式。这
 - DAO/Repository:  负责数据与存储相关功能。
 
 ![image-20231113220940000](https://s2.loli.net/2023/11/13/V1KGi5esuSmCIl4.png)
+
+# 结构目录示例
+
+![image-20231124202710394](https://s2.loli.net/2023/11/24/qwB2nFpJGXT5H9y.png)
+
+- `controller`
+  - 服务的入口，负责处理路由、参数校验、请求转发
+- `dao` (数据访问层)
+  - 负责数据与存储相关功能。
+- `logger`（日志层）
+- `logic/service`（逻辑处理层）
+  - 逻辑(服务)层，负责处理业务逻辑。
+- `models`
+  - 数据库中各表model
+  - 各request的请求参数结构体封装
+- `pkg`
+  - 引用的第三方的包/函数方法等
+- `routers`（路由层）
+- `settings`（配置层）
+- `config.yaml`（配置文件）
+- `main.go`（程序启动入口）
