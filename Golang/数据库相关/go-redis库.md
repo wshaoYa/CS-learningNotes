@@ -4,6 +4,8 @@
 
 github：[redis/go-redis: Redis Go client (github.com)](https://github.com/redis/go-redis)
 
+相关命令快速学习查询文档：[CRUG网站 (redis.cn)](http://redis.cn/)
+
 # 连接
 
 ## 普通连接模式
@@ -44,7 +46,7 @@ rdb := redis.NewClient(&redis.Options{
 })
 ```
 
-## Redis Sentinel模式
+## Redis Sentinel模式（哨兵）
 
 使用下面的命令连接到由 Redis Sentinel 管理的 Redis 服务器。
 
@@ -55,7 +57,7 @@ rdb := redis.NewFailoverClient(&redis.FailoverOptions{
 })
 ```
 
-## Redis Cluster模式
+## Redis Cluster模式（集群）
 
 使用下面的命令连接到 Redis Cluster，go-redis 支持按延迟或随机路由命令。
 
