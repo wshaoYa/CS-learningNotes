@@ -14,8 +14,12 @@ docker desktop
 
 [Docker 教程 | 菜鸟教程 (runoob.com)](https://www.runoob.com/docker/docker-tutorial.html)
 
-
+[01.课程简介_哔哩哔哩_bilibili](https://www.bilibili.com/video/BV14s4y1i7Vf/?p=1&vd_source=10527fd74695c7dd4ae2589a62aa5f89)
 
 
 
 还是应文字记录下笔记，后续待补充）
+
+# Docker Hub
+
+类同于github，上面有许多现成的镜像可供下载使用
