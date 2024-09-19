@@ -100,6 +100,8 @@ WHERE
 
 `COUNT()`函数返回表中的行数。 `COUNT()`函数允许您对表中符合特定条件的所有行进行计数。
 
+要结合group by使用
+
 ```mysql
 COUNT(expression)
 ```
