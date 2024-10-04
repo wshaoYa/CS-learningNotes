@@ -55,6 +55,7 @@
   - 两分支名相同则可省略冒号后面“本地分支名”部分
   - 默认远程仓库名和分支名为orgin和main
   - <img src="https://s2.loli.net/2023/10/31/pkiJzly6dPMuwoQ.png" alt="image-20231031103759649" style="zoom:50%;" />
+  - pull时忽视不相关的历史：` --allow-unrelated-histories `
 - `git remote -V`: 查看远程仓库
 - `git remote add <远程仓库别名> <远程仓库地址>`： 本地仓库与远程仓库建立连接
 
@@ -251,3 +252,27 @@
 保持合适的分支数量
 
 为分支设置合适的管理权限
+
+# 子模块
+
+## 添加子模块
+
+```bash
+git submodule add <git链接> <路径>
+```
+
+## 更新子模块
+
+<img src="https://s2.loli.net/2024/10/02/76f23lnBgGeHwkD.png" alt="image-20241002135728700" style="zoom: 80%;" />
+
+
+
+# IDE文件颜色含义
+
+Jetbrain IDE中安装Git以后，代码文件出现不同颜色分别表示的含义：
+
+- 绿色，已经加入控制暂未提交
+- 红色，未加入版本控制
+- 蓝色，加入，已提交，有改动
+- 白色，加入，已提交，无改动
+- 灰色：版本控制已忽略文件
