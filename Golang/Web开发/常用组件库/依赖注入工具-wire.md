@@ -1,0 +1,571 @@
+# 依赖注入工具-wire
+
+本文主要介绍什么是依赖注入和为什么要在开发中使用依赖注入工具，同时也介绍了一下Go常用的依赖注入工具——wire的使用和它的一些高级特性。
+
+## 控制反转与依赖注入
+
+控制反转（Inversion of Control，缩写为IoC），是**面向对象编程中的一种设计原则，可以用来减低计算机代码之间的耦合度**。其中最常见的方式叫做依赖注入（Dependency Injection，简称DI）。依赖注入是生成灵活和松散耦合代码的标准技术，通过明确地向组件提供它们所需要的所有依赖关系。在 Go 中通常采用将依赖项作为参数传递给构造函数的形式：
+
+构造函数`NewBookRepo`在创建`BookRepo`时需要从外部将依赖项`db`作为参数传入，我们在`NewBookRepo`中无需关注`db`的创建逻辑，实现了代码解耦。
+
+```go
+// NewBookRepo 创建BookRepo的构造函数
+func NewBookRepo(db *gorm.DB) *BookRepo {
+	return &BookRepo{db: db}
+}
+```
+
+区别于控制反转，如果在`NewBookRepo`函数中自行创建相关依赖，这将导致代码高度耦合并且难以维护和调试。
+
+```go
+// NewBookRepo 创建BookRepo的构造函数
+func NewBookRepo() *BookRepo {
+  db, _ := gorm.Open(sqlite.Open("gorm.db"), &gorm.Config{})
+	return &BookRepo{db: db}
+}
+```
+
+## 为什么需要依赖注入工具
+
+现在我们已经知道了应该在开发中尽可能地使用控制反转和依赖注入将程序解耦开来，从而写出灵活和易测试的程序。
+
+在小型应用程序中，我们可以自行创建依赖并手动注入。但是在一个大型应用程序中，手动去实现所有依赖的创建和注入就会比较繁琐。
+
+例如，在一些常见的HTTP服务中，会根据业务需要划分出不同的代码层：
+
+```bash
+├── internal
+│   ├── conf
+│   │   └── conf.go
+│   ├── data
+│   │   └── data.go
+│   ├── server
+│   │   └── server.go
+│   └── service
+│       └── service.go
+└── main.go
+```
+
+我们的服务需要有一个配置，指定工作模式、连接的数据库和监听端口等信息。
+
+```go
+// conf/conf.go
+
+// NewDefaultConfig 返回默认配置，不需要依赖
+func NewDefaultConfig() *Config {...}
+```
+
+我们这里定义了一个默认配置，当然后续可以支持从配置文件或环境变量读取配置信息。
+
+在程序的`data`层，需要定义一个连接数据库的函数，它依赖上面定义的`Config`并返回一个`*gorm.DB`（这里使用gorm连接数据库）。
+
+```go
+// data/data.go
+
+// NewDB 返回数据库连接对象
+func NewDB(cfg *conf.Config) (*gorm.DB, error) {...}
+```
+
+同时定义一个`BookRepo`，它有一些数据操作相关的方法。它的构造函数`NewBookRepo`依赖`*gorm.DB`，并返回一个`*BookRepo`。
+
+```go
+// data/data.go
+
+type BookRepo struct {
+	db *gorm.DB
+}
+
+func NewBookRepo(db *gorm.DB) *BookRepo {...}
+```
+
+`Service`层位于`data`层和`Server`层的中间，它负责实现对外服务。其中构造函数 `NewBookService` 依赖`Config`和`BookRepo`。
+
+```go
+// service/service.go
+
+type BookService struct {
+	config *conf.Config
+	repo   *data.BookRepo
+}
+
+func NewBookService(cfg *conf.Config, repo *data.BookRepo) *BookService {...}
+```
+
+`server`层又有一个`NewServer`构造函数，它依赖外部传入`Config`和`BookService`。
+
+```go
+// server/server.go
+
+type Server struct {
+	config  *conf.Config
+	service *service.BookService
+}
+
+func NewServer(cfg *conf.Config, srv *service.BookService) *Server {...}
+```
+
+在`main.go`文件中又依赖`Server`创建一个`app`。
+
+```go
+// main.go
+
+type Server interface {
+	Run()
+}
+
+type App struct {
+	server Server
+}
+
+func newApp(server Server) *App {...}
+```
+
+由于在程序中定义了大量需要依赖注入的构造函数，程序的`main`函数中会出现以下情形。所有依赖的创建和顺序都需要手动维护。
+
+```go
+// main.go
+
+func main() {
+	cfg := conf.NewDefaultConfig()
+	db, _ := data.NewDB(cfg)
+	repo := data.NewBookRepo(db)
+	bookSrv := service.NewBookService(cfg, repo)
+	server := server.NewServer(cfg, bookSrv)
+	app := newApp(server)
+
+	app.Run()
+}
+```
+
+我们确实需要一个工具来解决这类问题。
+
+## Wire
+
+Go社区中有很多依赖注入框架。比如：Uber的[dig](https://github.com/uber-go/dig)和Facebook的[inject](https://github.com/facebookgo/inject)都使用反射来做运行时依赖注入。
+
+[Wire](https://link.segmentfault.com/?enc=fD0W0IcWPmDhPSWFze1Pwg%3D%3D.JhEtO7p6UW6DvZshpJcIwaqeaKeXMIL%2FEVAB8gqQKHM%3D) 是一个的 Google 开源的依赖注入工具，通过自动生成代码的方式在**编译期**完成依赖注入。
+
+### wire介绍
+
+`wire`中有两个核心概念：提供者（provider）和注入器（injector）。
+
+#### Provider
+
+`Wire`中的提供者就是一个可以产生值的普通函数。
+
+```go
+package demo
+
+type X struct {
+    Value int
+}
+
+// NewX 返回一个X对象
+func NewX() X {
+  return X{Value: 7}
+}
+```
+
+提供者函数必须是可导出的（首字母大写）以便被其他包导入。
+
+提供者函数可以使用参数指定依赖项：
+
+```go
+package demo
+
+// ...
+
+type Y struct {
+    Value int
+}
+
+// NewY 返回一个Y对象，需要传入一个X对象作为依赖。
+func NewY(x X) Y {
+  return Y{Value: x.Value+1}
+}
+```
+
+提供者函数也是可以返回错误的。
+
+```go
+package demo
+
+import (
+    "context"
+    "errors"
+)
+
+// ...
+
+type Z struct {
+    Value int
+}
+
+// NewZ 返回一个Z对象，当传入依赖的value为0时会返回错误。
+func NewZ(ctx context.Context, y Y) (Z, error) {
+	if y.Value == 0 {
+		return Z{}, errors.New("cannot provide z when value is zero")
+	}
+	return Z{Value: y.Value + 2}, nil
+}
+```
+
+提供者函数可以分组为提供者函数集（**provider set**）。使用`wire.NewSet` 函数可以将多个提供者函数添加到一个集合中。如果经常同时使用多个提供者函数，这非常有用。
+
+```go
+package demo
+
+import (
+    // ...
+    "github.com/google/wire"
+)
+
+// ...
+
+var ProviderSet = wire.NewSet(NewX, NewY, NewZ)
+```
+
+还可以将其他提供者函数集添加到提供者函数集中。
+
+```go
+package demo
+
+import (
+    // ...
+    "example.com/some/other/pkg"
+)
+
+// ...
+
+var MegaSet = wire.NewSet(ProviderSet, pkg.OtherSet)
+```
+
+#### Injector
+
+应用程序中是用一个注入器来连接提供者，注入器就是一个按照依赖顺序调用提供者。
+
+使用 `wire`时，你只需要编写注入器的函数签名，然后 `wire`会生成对应的函数体。
+
+要声明一个注入器函数只需要在函数体中调用`wire.Build`。这个函数的返回值也无关紧要，只要它们的类型正确即可。这些值在生成的代码中将被忽略。假设上面的提供者函数是在一个名为 `wire_demo/demo` 的包中定义的，下面将声明一个注入器来得到一个`Z`。
+
+```go
+//go:build wireinject
+// +build wireinject
+
+package main
+
+import (
+    "context"
+
+    "github.com/google/wire"
+    "wire_demo/demo"
+)
+
+func initZ(ctx context.Context) (demo.Z, error) {
+    wire.Build(demo.ProviderSet)
+    return demo.Z{}, nil
+}
+```
+
+与提供者一样，注入器也可以输入参数（然后将其发送给提供者），并且可以返回错误。
+
+`wire.Build`的参数和`wire.NewSet`一样：都是提供者集合。这些就在该注入器的代码生成期间使用的提供者集。
+
+将上面的代码保存到`wire.go`中，文件最上面的`//go:build wireinject` 是必须的（Go 1.18之前的版本使用`// +build wireinject`），它确保`wire.go`不会参与最终的项目编译。
+
+### wire的使用
+
+#### 安装wire命令行工具
+
+```bash
+go install github.com/google/wire/cmd/wire@latest
+```
+
+在`wire.go`同级目录下执行以下命令。
+
+```bash
+wire
+```
+
+`wire`会在同级目录下`wire_gen.go`文件中生成注入器的具体实现。
+
+```go
+// Code generated by Wire. DO NOT EDIT.
+
+//go:generate go run github.com/google/wire/cmd/wire
+//go:build !wireinject
+// +build !wireinject
+
+package main
+
+import (
+	"context"
+	"wire_demo/demo"
+)
+
+// Injectors from wire.go:
+
+func initZ(ctx context.Context) (demo.Z, error) {
+	x := demo.NewX()
+	y := demo.NewY(x)
+	z, err := demo.NewZ(ctx, y)
+	if err != nil {
+		return demo.Z{}, err
+	}
+	return z, nil
+}
+```
+
+从生成的内容可以看出，`wire`生成的内容非常接近开发人员自己编写的内容。此外，运行时对`wire`的依赖性很小：所有编写的代码都只是普通的Go代码，可以在没有`wire`的情况下使用。
+
+### 高级特性
+
+#### 绑定接口
+
+依赖项注入通常用于绑定接口的具体实现。`wire`通过类型标识将输入与输出匹配，因此倾向于创建一个返回接口类型的提供者。然而，这也不是习惯写法，因为Go的最佳实践是返回具体类型。你可以在提供者集中声明接口绑定：
+
+```go
+type Fooer interface {
+    Foo() string
+}
+
+type MyFooer string
+
+func (b *MyFooer) Foo() string {
+    return string(*b)
+}
+
+func provideMyFooer() *MyFooer {
+    b := new(MyFooer)
+    *b = "Hello, World!"
+    return b
+}
+
+type Bar string
+
+func provideBar(f Fooer) string {
+    // f will be a *MyFooer.
+    return f.Foo()
+}
+
+var Set = wire.NewSet(
+    provideMyFooer,
+    wire.Bind(new(Fooer), new(*MyFooer)),
+    provideBar,
+)
+```
+
+`wire.Bind`的第一个参数是指向所需接口类型值的指针，第二个参数是指向实现该接口的类型值的指针。任何包含接口绑定的集合还必须具有提供具体类型的提供者。
+
+#### 结构体提供者
+
+可以使用提供的类型构造结构体。使用`wire.Struct`函数构造一个结构体类型，并告诉注入器应该注入哪个字段。注入器将使用字段类型的提供程序填充每个字段。对于生成的结构体类型`S`，`wire.struct`同时提供`S`和`*S`。例如，给定以下提供者：
+
+```go
+type Foo int
+type Bar int
+
+func ProvideFoo() Foo {/* ... */}
+
+func ProvideBar() Bar {/* ... */}
+
+type FooBar struct {
+    MyFoo Foo
+    MyBar Bar
+}
+
+var Set = wire.NewSet(
+    ProvideFoo,
+    ProvideBar,
+    wire.Struct(new(FooBar), "MyFoo", "MyBar"),
+)
+```
+
+最终生成的`FooBar `注入器类似如下所示：
+
+```go
+func injectFooBar() FooBar {
+    foo := ProvideFoo()
+    bar := ProvideBar()
+    fooBar := FooBar{
+        MyFoo: foo,
+        MyBar: bar,
+    }
+    return fooBar
+}
+```
+
+`wire.Struct`的第一个参数是指向所需结构体类型的指针，随后的参数是要注入的字段的名称。可以使用一个特殊的字符串“*”作为快捷方式，告诉注入器注入结构体的所有字段。在这里使用`wire.Struct(new(FooBar), "*")`会产生和上面相同的结果。
+
+对于上面的示例，如果只想注入`MyFoo`字段，那么可以将`Set`改写为以下内容：
+
+```go
+var Set = wire.NewSet(
+    ProvideFoo,
+    wire.Struct(new(FooBar), "MyFoo"),
+)
+```
+
+然后，对于`FooBar` 生成的注入器将如下所示：
+
+```go
+func injectFooBar() FooBar {
+    foo := ProvideFoo()
+    fooBar := FooBar{
+        MyFoo: foo,
+    }
+    return fooBar
+}
+```
+
+如果注入器返回的是 `*FooBar` 而不是 `FooBar`，那么生成的注入器将如下所示:
+
+```go
+func injectFooBar() *FooBar {
+    foo := ProvideFoo()
+    fooBar := &FooBar{
+        MyFoo: foo,
+    }
+    return fooBar
+}
+```
+
+有时防止结构体的某些字段被注入器填充很有必要，尤其是在将`*`传递给`wire.Struct`的时候。你可以用`wire:"-"`标记字段，使`wire`忽略这些字段。例如：
+
+```go
+type Foo struct {
+    mu sync.Mutex `wire:"-"`
+    Bar Bar
+}
+```
+
+当你使用`wire.Struct(new(Foo), "*")`提供`Foo`类型时，`wire`将自动省略`mu`字段。此外，在`wire.Struct(new(Foo), "mu")`中显式指定被忽略的字段也会报错。
+
+#### 绑定值
+
+有时，将基本值（通常为nil）绑定到类型是有用的。你可以向提供程序集添加一个值表达式，而不是让注入器依赖于一次性提供者函数。
+
+```go
+type Foo struct {
+    X int
+}
+
+func injectFoo() Foo {
+    wire.Build(wire.Value(Foo{X: 42}))
+    return Foo{}
+}
+```
+
+生成的注入器：
+
+```go
+func injectFoo() Foo {
+    foo := _wireFooValue
+    return foo
+}
+
+var (
+    _wireFooValue = Foo{X: 42}
+)
+```
+
+值得注意的是，表达式将被复制到注入器的包中；对变量的引用将在注入器包的初始化过程中进行计算。如果表达式调用任何函数或从任何通道接收任何函数，`wire` 将会报错。
+
+对于接口值，使用 `InterfaceValue`：
+
+```go
+func injectReader() io.Reader {
+    wire.Build(wire.InterfaceValue(new(io.Reader), os.Stdin))
+    return nil
+}
+```
+
+#### 使用结构的字段作为提供者
+
+有时，用户想要的提供程序是结构的某些字段。如果你发现自己在下面的示例中编写了一个类似`getS`的提供者，可以尝试将结构字段作为所提供的类型：
+
+```go
+type Foo struct {
+    S string
+    N int
+    F float64
+}
+
+func getS(foo Foo) string {
+    // Bad! Use wire.FieldsOf instead.
+    return foo.S
+}
+
+func provideFoo() Foo {
+    return Foo{ S: "Hello, World!", N: 1, F: 3.14 }
+}
+
+func injectedMessage() string {
+    wire.Build(
+        provideFoo,
+        getS,
+    )
+    return ""
+}
+```
+
+你可以使用`wire.FieldsOf`直接使用结构体的字段，而无需编写一个类似`getS`的函数：
+
+```go
+func injectedMessage() string {
+    wire.Build(
+        provideFoo,
+        wire.FieldsOf(new(Foo), "S"),
+    )
+    return ""
+}
+```
+
+生成的注射器如下所示：
+
+```go
+func injectedMessage() string {
+    foo := provideFoo()
+    string2 := foo.S
+    return string2
+}
+```
+
+你可以根据需要将任意多的字段名称添加到`wire.FieldsOf`中。
+
+#### Cleanup函数
+
+如果提供程序创建了一个需要清理的值（例如关闭文件、关闭数据库连接等），那么它可以返回一个闭包来清理资源。注入器将使用它向调用方返回聚合清理函数，或者在注入器实现中稍后调用的提供程序返回错误时清理资源。
+
+```go
+func provideFile(log Logger, path Path) (*os.File, func(), error) {
+    f, err := os.Open(string(path))
+    if err != nil {
+        return nil, nil, err
+    }
+    cleanup := func() {
+        if err := f.Close(); err != nil {
+            log.Log(err)
+        }
+    }
+    return f, cleanup, nil
+}
+```
+
+`cleanup`函数的签名必须是`func()`，并且保证在提供者的任何输入的cleanup函数之前调用。
+
+#### 备用注入器语法
+
+如果你厌倦了在注入器函数声明的末尾编写类似`return Foo{}, nil`的语句，那么你可以简单粗暴地使用`panic`：
+
+```go
+func injectFoo() Foo {
+    panic(wire.Build(/* ... */))
+}
+```
+
+## 参考文档
+
+https://github.com/google/wire/blob/main/_tutorial/README.md
+
+https://github.com/google/wire/blob/v0.5.0/docs/guide.md
