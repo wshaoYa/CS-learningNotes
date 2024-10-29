@@ -857,3 +857,9 @@ FROM table_name;
 SELECT column_name(s)
 FROM table_name AS alias_name;
 ```
+
+
+
+
+
+![image-20241015154041979](https://s2.loli.net/2024/10/15/ZWMFNjdSzUgvJY3.png)

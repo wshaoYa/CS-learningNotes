@@ -110,8 +110,7 @@ jti (JWT ID)：编号
 
 Signature 部分是对前两部分的签名，防⽌数据篡改。
 
-⾸先，需要指定⼀个密钥（secret）。这个密钥只有服务器才知道，不能泄露给⽤户。然后，使⽤
-Header ⾥⾯指定的签名算法（默认是 HMAC SHA256），按照下⾯的公式产⽣签名。
+⾸先，需要指定⼀个密钥（secret）。这个密钥只有服务器才知道，不能泄露给⽤户。然后，使⽤Header ⾥⾯指定的签名算法（默认是 HMAC SHA256），按照下⾯的公式产⽣签名。
 
 ```
 HMACSHA256(base64UrlEncode(header) + "." + base64UrlEncode(payload),secret)
